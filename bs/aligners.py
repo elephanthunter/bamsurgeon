@@ -76,10 +76,10 @@ def remap_backtrack_bam(bamfn, threads, fastaref, mutid='null', paired=True):
         samfn  = bamfn + ".sam"
         refidx = fastaref + ".fai"
 
-        sai1args = ['bwa', 'aln', '-q', '5', '-l', '32', '-k', '3', '-t', str(threads), '-o', '1', '-f', sai1fn, '-b1', fastaref, bamfn]
-        sai2args = ['bwa', 'aln', '-q', '5', '-l', '32', '-k', '3', '-t', str(threads), '-o', '1', '-f', sai2fn, '-b2', fastaref, bamfn]
-        samargs  = ['bwa', 'sampe', '-P', '-f', samfn, fastaref, sai1fn, sai2fn, bamfn, bamfn]
-        bamargs  = ['samtools', 'view', '-bt', refidx, '-o', bamfn, samfn] 
+        sai1args = ['/usr/local/bin/bwa', 'aln', '-q', '5', '-l', '32', '-k', '3', '-t', str(threads), '-o', '1', '-f', sai1fn, '-b1', fastaref, bamfn]
+        sai2args = ['/usr/local/bin/bwa', 'aln', '-q', '5', '-l', '32', '-k', '3', '-t', str(threads), '-o', '1', '-f', sai2fn, '-b2', fastaref, bamfn]
+        samargs  = ['/usr/local/bin/bwa', 'sampe', '-P', '-f', samfn, fastaref, sai1fn, sai2fn, bamfn, bamfn]
+        bamargs  = ['/usr/local/bin/samtools', 'view', '-bt', refidx, '-o', bamfn, samfn]
 
         print "INFO\t" + now() + "\t" + mutid + "\tmapping 1st end, cmd: " + " ".join(sai1args)
         subprocess.call(sai1args)
@@ -92,12 +92,12 @@ def remap_backtrack_bam(bamfn, threads, fastaref, mutid='null', paired=True):
 
         sortbase = bamfn + ".sort"
         sortfn   = sortbase + ".bam"
-        sortargs = ['samtools','sort','-m','10000000000',bamfn,sortbase]
+        sortargs = ['/usr/local/bin/samtools','sort','-m','10000000000',bamfn,sortbase]
         print "INFO\t" + now() + "\t" + mutid + "\tsorting, cmd: " + " ".join(sortargs)
         subprocess.call(sortargs)
         os.rename(sortfn, bamfn)
 
-        indexargs = ['samtools','index',bamfn]
+        indexargs = ['/usr/local/bin/samtools','index',bamfn]
         print "INFO\t" + now() + "\t" + mutid + "\tindexing, cmd: " + " ".join(indexargs)
         subprocess.call(indexargs)
 
@@ -111,9 +111,9 @@ def remap_backtrack_bam(bamfn, threads, fastaref, mutid='null', paired=True):
         samfn  = bamfn + ".sam"
         refidx = fastaref + ".fai"
 
-        saiargs = ['bwa', 'aln', '-q', '5', '-l', '32', '-k', '3', '-t', str(threads), '-o', '1', '-f', saifn, '-b1', fastaref, bamfn]
-        samargs  = ['bwa', 'samse', '-f', samfn, fastaref, saifn, bamfn]
-        bamargs  = ['samtools', 'view', '-bt', refidx, '-o', bamfn, samfn] 
+        saiargs = ['/usr/local/bin/bwa', 'aln', '-q', '5', '-l', '32', '-k', '3', '-t', str(threads), '-o', '1', '-f', saifn, '-b1', fastaref, bamfn]
+        samargs  = ['/usr/local/bin/bwa', 'samse', '-f', samfn, fastaref, saifn, bamfn]
+        bamargs  = ['/usr/local/bin/samtools', 'view', '-bt', refidx, '-o', bamfn, samfn]
 
         print "INFO\t" + now() + "\t" + mutid + "\tmapping, cmd: " + " ".join(saiargs)
         subprocess.call(saiargs)
@@ -124,12 +124,12 @@ def remap_backtrack_bam(bamfn, threads, fastaref, mutid='null', paired=True):
 
         sortbase = bamfn + ".sort"
         sortfn   = sortbase + ".bam"
-        sortargs = ['samtools','sort','-m','10000000000',bamfn,sortbase]
+        sortargs = ['/usr/local/bin/samtools','sort','-m','10000000000',bamfn,sortbase]
         print "INFO\t" + now() + "\t" + mutid + "\tsorting, cmd: " + " ".join(sortargs)
         subprocess.call(sortargs)
         os.rename(sortfn,bamfn)
 
-        indexargs = ['samtools','index',bamfn]
+        indexargs = ['/usr/local/bin/samtools','index',bamfn]
         print "INFO\t" + now() + "\t" + mutid + "\tindexing, cmd: " + " ".join(indexargs)
         subprocess.call(indexargs)
 
@@ -155,15 +155,15 @@ def remap_bwamem_bam(bamfn, threads, fastaref, picardjar, mutid='null', paired=T
     sam_cmd = []
 
     if paired:
-        sam_cmd  = ['bwa', 'mem', '-t', str(threads), '-M', '-p', fastaref, fastq] # interleaved
+        sam_cmd  = ['/usr/local/bin/bwa', 'mem', '-t', str(threads), '-M', '-p', fastaref, fastq] # interleaved
     else:
-        sam_cmd  = ['bwa', 'mem', '-t', str(threads), '-M', fastaref, fastq] # single-end
+        sam_cmd  = ['/usr/local/bin/bwa', 'mem', '-t', str(threads), '-M', fastaref, fastq] # single-end
 
     assert len(sam_cmd) > 0
 
-    bam_cmd  = ['samtools', 'view', '-bt', fastaref + '.fai', '-o', bamfn, sam_out]
-    sort_cmd = ['samtools', 'sort', '-@', str(threads), '-m', '10000000000', bamfn, sort_out]
-    idx_cmd  = ['samtools', 'index', bamfn]
+    bam_cmd  = ['/usr/local/bin/samtools', 'view', '-bt', fastaref + '.fai', '-o', bamfn, sam_out]
+    sort_cmd = ['/usr/local/bin/samtools', 'sort', '-@', str(threads), '-m', '10000000000', bamfn, sort_out]
+    idx_cmd  = ['/usr/local/bin/samtools', 'index', bamfn]
 
     print "INFO\t" + now() + "\t" + mutid + "\taligning " + fastq + " with bwa mem\n"
     with open(sam_out, 'w') as sam:
@@ -223,9 +223,9 @@ def remap_novoalign_bam(bamfn, threads, fastaref, picardjar, novoref, mutid='nul
 
     assert len(sam_cmd) > 0
 
-    bam_cmd  = ['samtools', 'view', '-bt', fastaref + '.fai', '-o', bamfn, sam_out]
-    sort_cmd = ['samtools', 'sort', '-@', str(threads), '-m', '10000000000', bamfn, sort_out]
-    idx_cmd  = ['samtools', 'index', bamfn]
+    bam_cmd  = ['/usr/local/bin/samtools', 'view', '-bt', fastaref + '.fai', '-o', bamfn, sam_out]
+    sort_cmd = ['/usr/local/bin/samtools', 'sort', '-@', str(threads), '-m', '10000000000', bamfn, sort_out]
+    idx_cmd  = ['/usr/local/bin/samtools', 'index', bamfn]
 
     print "INFO\t" + now() + "\t" + mutid + "\taligning " + str(fastq) + " with novoalign\n"
     with open(sam_out, 'w') as sam:
@@ -296,9 +296,9 @@ def remap_gsnap_bam(bamfn, threads, fastaref, picardjar, gsnaprefdir, gsnaprefna
 
     assert len(sam_cmd) > 0
 
-    bam_cmd  = ['samtools', 'view', '-bt', fastaref + '.fai', '-o', bamfn, sam_out]
-    sort_cmd = ['samtools', 'sort', '-@', str(threads), '-m', '10000000000', bamfn, sort_out]
-    idx_cmd  = ['samtools', 'index', bamfn]
+    bam_cmd  = ['/usr/local/bin/samtools', 'view', '-bt', fastaref + '.fai', '-o', bamfn, sam_out]
+    sort_cmd = ['/usr/local/bin/samtools', 'sort', '-@', str(threads), '-m', '10000000000', bamfn, sort_out]
+    idx_cmd  = ['/usr/local/bin/samtools', 'index', bamfn]
 
     print "INFO\t" + now() + "\t" + mutid + "\taligning " + str(fastq) + " with gsnap\n"
     with open(sam_out, 'w') as sam:
@@ -364,9 +364,9 @@ def remap_bowtie2_bam(bamfn, threads, fastaref, picardjar, bowtie2ref, mutid='nu
 
     assert len(sam_cmd) > 0
 
-    bam_cmd  = ['samtools', 'view', '-bt', fastaref + '.fai', '-o', bamfn, sam_out]
-    sort_cmd = ['samtools', 'sort', '-@', str(threads), '-m', '10000000000', bamfn, sort_out]
-    idx_cmd  = ['samtools', 'index', bamfn]
+    bam_cmd  = ['/usr/local/bin/samtools', 'view', '-bt', fastaref + '.fai', '-o', bamfn, sam_out]
+    sort_cmd = ['/usr/local/bin/samtools', 'sort', '-@', str(threads), '-m', '10000000000', bamfn, sort_out]
+    idx_cmd  = ['/usr/local/bin/samtools', 'index', bamfn]
 
     print "INFO\t" + now() + "\t" + mutid + "\taligning " + str(fastq) + " with bowtie2\n"
     with open(sam_out, 'w') as sam:
@@ -441,11 +441,11 @@ def remap_bwamem_fastq(fq1, fq2, threads, fastaref, outbam, deltmp=True, mutid='
     sam_out  = basefn + '.sam'
     sort_out = basefn + '.sorted'
 
-    sam_cmd  = ['bwa', 'mem', '-t', str(threads), '-M', '-Y', fastaref, fq1, fq2]
+    sam_cmd  = ['/usr/local/bin/bwa', 'mem', '-t', str(threads), '-M', '-Y', fastaref, fq1, fq2]
 
-    bam_cmd  = ['samtools', 'view', '-bt', fastaref + '.fai', '-o', outbam, sam_out]
-    sort_cmd = ['samtools', 'sort', '-@', str(threads), '-m', '10000000000', outbam, sort_out]
-    idx_cmd  = ['samtools', 'index', outbam]
+    bam_cmd  = ['/usr/local/bin/samtools', 'view', '-bt', fastaref + '.fai', '-o', outbam, sam_out]
+    sort_cmd = ['/usr/local/bin/samtools', 'sort', '-@', str(threads), '-m', '10000000000', outbam, sort_out]
+    idx_cmd  = ['/usr/local/bin/samtools', 'index', outbam]
 
     print "INFO\t" + now() + "\t" + mutid + "\taligning " + fq1 + ',' + fq2 + " with bwa mem"
     with open(sam_out, 'w') as sam:
@@ -492,9 +492,9 @@ def remap_novoalign_fastq(fq1, fq2, threads, fastaref, novoref, outbam, deltmp=T
     sort_out = basefn + '.sorted'
 
     sam_cmd  = ['novoalign', '-F', 'STDFQ', '-f', fq1, fq2, '-r', 'Random', '-d', novoref, '-oSAM']
-    bam_cmd  = ['samtools', 'view', '-bt', fastaref + '.fai', '-o', outbam, sam_out]
-    sort_cmd = ['samtools', 'sort', '-@', str(threads), '-m', '10000000000', outbam, sort_out]
-    idx_cmd  = ['samtools', 'index', outbam]
+    bam_cmd  = ['/usr/local/bin/samtools', 'view', '-bt', fastaref + '.fai', '-o', outbam, sam_out]
+    sort_cmd = ['/usr/local/bin/samtools', 'sort', '-@', str(threads), '-m', '10000000000', outbam, sort_out]
+    idx_cmd  = ['/usr/local/bin/samtools', 'index', outbam]
 
     print "INFO\t" + now() + "\t" + mutid + "\taligning " + fq1 + ',' + fq2 + " with novoalign"
     with open(sam_out, 'w') as sam:
@@ -543,11 +543,11 @@ def remap_backtrack_fastq(fq1, fq2, threads, fastaref, outbam, deltmp=True, muti
     tmpbam = basefn + ".bam"
     tmpsrt = basefn + ".sort"
 
-    sai1args = ['bwa', 'aln', '-q', '5', '-l', '32', '-k', '2', '-t', str(threads), '-o', '1', '-f', sai1fn, fastaref, fq1]
-    sai2args = ['bwa', 'aln', '-q', '5', '-l', '32', '-k', '2', '-t', str(threads), '-o', '1', '-f', sai2fn, fastaref, fq2]
-    samargs  = ['bwa', 'sampe', '-P', '-f', samfn, fastaref, sai1fn, sai2fn, fq1, fq2]
-    bamargs  = ['samtools', 'view', '-bt', refidx, '-o', tmpbam, samfn]
-    sortargs = ['samtools', 'sort', tmpbam, tmpsrt]
+    sai1args = ['/usr/local/bin/bwa', 'aln', '-q', '5', '-l', '32', '-k', '2', '-t', str(threads), '-o', '1', '-f', sai1fn, fastaref, fq1]
+    sai2args = ['/usr/local/bin/bwa', 'aln', '-q', '5', '-l', '32', '-k', '2', '-t', str(threads), '-o', '1', '-f', sai2fn, fastaref, fq2]
+    samargs  = ['/usr/local/bin/bwa', 'sampe', '-P', '-f', samfn, fastaref, sai1fn, sai2fn, fq1, fq2]
+    bamargs  = ['/usr/local/bin/samtools', 'view', '-bt', refidx, '-o', tmpbam, samfn]
+    sortargs = ['/usr/local/bin/samtools', 'sort', tmpbam, tmpsrt]
 
     print "INFO\t" + now() + "\t" + mutid + "\tmapping 1st end, cmd: " + " ".join(sai2args)
     p = subprocess.Popen(sai2args, stderr=subprocess.STDOUT)

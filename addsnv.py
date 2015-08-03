@@ -280,7 +280,9 @@ def main(args):
     bedfile = open(args.varFileName, 'r')
     reffile = pysam.Fastafile(args.refFasta)
 
-    if not os.path.exists(args.bamFileName + '.bai'):
+    bamFilename, _ = os.path.splitext(args.bamFileName)
+
+    if not os.path.exists(args.bamFileName + '.bai') and not os.path.exists(bamFilename + '.bai'):
         sys.stderr.write("ERROR\t" + now() + "\tinput bam must be indexed, not .bai file found for " + args.bamFileName + " \n")
         sys.exit(1)
 
@@ -382,7 +384,8 @@ def main(args):
 
     for hc in haploclusters:
         # make mutation (submit job to thread pool)
-        result = pool.apply_async(makemut, [args, hc, avoid, alignopts])
+        #result = pool.apply_async(makemut, [args, hc, avoid, alignopts])
+        result = makemut(args, hc, avoid, alignopts)
         results.append(result)
 
 

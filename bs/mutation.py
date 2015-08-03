@@ -9,7 +9,7 @@ def countBaseAtPos(bamfile,chrom,pos,mutid='null'):
     """ return list of bases at position chrom,pos
     """
     locstr = chrom + ":" + str(pos) + "-" + str(pos)
-    args = ['samtools','mpileup',bamfile,'-r',locstr]
+    args = ['/usr/local/bin/samtools','mpileup',bamfile,'-r',locstr]
 
     p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     p.wait()
@@ -126,11 +126,13 @@ def mutate(args, log, bamfile, bammate, chrom, mutstart, mutend, mutpos_list, av
 
     region = 'haplo_' + chrom + '_' + str(mutstart) + '_' + str(mutend)
 
-    for pcol in bamfile.pileup(reference=chrom, start=mutstart, end=mutend):
-        if pcol.pos:
-            refbase = reffile.fetch(chrom, pcol.pos-1, pcol.pos)
+    # maxfrac = 0.0
+    # mutfail = True
+    for pcol in bamfile.pileup(reference=chrom, start=mutstart, end=mutend):  # why not just use truncate=True?
+        if pcol.pos:  # position exits
+            refbase = reffile.fetch(chrom, pcol.pos-1, pcol.pos)  # obtain the reference base
             basepile = ''
-            for pread in pcol.pileups:
+            for pread in pcol.pileups:  # iterate over alignments
                 if avoid is not None and pread.alignment.qname in avoid:
                     print "WARN\t" + now() + "\t" + region + "\tdropped mutation due to read in --avoidlist", pread.alignment.qname
                     return True, False, {}, {}, {}
@@ -193,8 +195,8 @@ def mutate(args, log, bamfile, bammate, chrom, mutstart, mutend, mutpos_list, av
 
             basepile = countBaseAtPos(args.bamFileName,chrom,pcol.pos,mutid=region)
             if basepile:
-                majb = majorbase(basepile)
-                minb = minorbase(basepile)
+                majb = majorbase(basepile)  # major base
+                minb = minorbase(basepile)  # minor base
 
                 frac = float(minb[1])/(float(majb[1])+float(minb[1]))
                 if minb[0] == majb[0]:
@@ -208,5 +210,5 @@ def mutate(args, log, bamfile, bammate, chrom, mutstart, mutend, mutpos_list, av
                 sys.stderr.write("WARN\t" + now() + "\t" + region + "\tcould not pileup for region: " + chrom + ":" + str(pcol.pos) + "\n")
                 if not args.ignorepileup:
                     hasSNP = True
-
+        # mutfail = False
     return False, hasSNP, maxfrac, outreads, mutreads, mutmates # todo: convert to class
